@@ -6,26 +6,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-namespace TestDasrestApi
+
+namespace DasrestApi.Test
 {
     public class Helper
     {
 
         const string URL = "http://localhost:8080/";
-        const string Parametr1 = "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW";
-        const string Parametr2 = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nadmin\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\nqwerty\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--";
-
+        //const string Parametr1 = "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW";
+        //const string Parametr2 = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nadmin\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\nqwerty\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--";
+        
 
 
         public static string getToken()
         {
-            string token="";
+            string token = "";
+            var parameters = new Dictionary<string, string>
+            {
+                { "name","admin" },
+                { "password","qwerty"}
+            };
+        
+            IRestResponse response = PostRequest("/login", parameters,false);
+            return TokenToString(response.Content);
+        }
 
-            IRestResponse response = GetResponse(Request(Method.POST,"/login", ParameterType.RequestBody, Parametr1,Parametr2 ));
-            var content = response.Content;
+        protected static string TokenToString(string response)
+        {
+            string token="";
             try
             {
-                token = content.Substring(content.IndexOf(":\"") + 2);
+                token = response.Substring(response.IndexOf(":\"") + 2);
                 token = token.Substring(0, token.Length - 2);
             }
             catch (Exception e)
@@ -34,41 +45,46 @@ namespace TestDasrestApi
             }
             return token;
         }
-
-        public static IRestResponse GetResponse(RestRequest request)
+        
+        public static string GetRequest(string route,Dictionary<string,string> parameters)
         {
-            RestClient client = new RestClient(URL);
-            return client.Execute(request);
-        }
-
-        public static RestRequest Request(Method method,string url, Dictionary<string,string> parametrs)
-        {
-            RestRequest request = new RestRequest(url, method);
-            foreach(var item in parametrs)
+            RestRequest request = new RestRequest(route, Method.GET);
+            foreach (var item in parameters)
             {
                 request.AddParameter(item.Key, item.Value);
             }
-            return request;
-        }
+            RestClient client = new RestClient(URL);
+            return ResponseToString(client.Execute(request).Content);
 
-        public static RestRequest Request(Method method, string url)
+        }
+        public static IRestResponse PostRequest(string route, Dictionary<string, string> parameters,bool value)
         {
-            RestRequest request = new RestRequest(url, method);
-            return request;
+            RestRequest request = new RestRequest(route, Method.POST);
+            foreach (var item in parameters)
+            {
+                request.AddParameter(item.Key, item.Value);
+            }
+            RestClient client = new RestClient(URL);
+            return client.Execute(request);
+
         }
 
-        public static RestRequest Request(Method method, string url, ParameterType type, string par1,string par2)
+        public static string PostRequest(string route, Dictionary<string, string> parameters)
         {
-            RestRequest request = new RestRequest(url, method);
-            request.AddParameter(par1,par2,type);
-            return request;
-        }
+            RestRequest request = new RestRequest(route, Method.POST);
+            foreach (var item in parameters)
+            {
+                request.AddParameter(item.Key, item.Value);
+            }
+            RestClient client = new RestClient(URL);
+            return ResponseToString(client.Execute(request).Content);
 
-        public static ServiceResponse GetServiceResponse(string body)
+        }
+        public static string ResponseToString(string body)
         {
-
-            return JsonConvert.DeserializeObject<ServiceResponse>(body);
+            return JsonConvert.DeserializeObject<ServiceResponse>(body).content;
         }
+
 
     }
     public struct ServiceResponse

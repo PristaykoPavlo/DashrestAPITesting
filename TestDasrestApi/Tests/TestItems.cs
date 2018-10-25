@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestDasrestApi
+namespace DasrestApi.Test
 {
     [TestFixture]
     class TestItems
@@ -35,10 +35,10 @@ namespace TestDasrestApi
         {
             var parameters = new Dictionary<string, string>() { { "token", token } };
 
-            IRestResponse response = Helper.GetResponse(Helper.Request(Method.GET, "/items", parameters));
-            string actual = response.Content;
-            Logger.WritingLogging($"Test Get All Items: content = {response.Content}", null);
-            Console.WriteLine("content -> " + actual);
+            string response = Helper.GetRequest("/items", parameters);
+            //string actual = response.Content;
+            Logger.WritingLogging($"Test Get All Items: content = {response}", null);
+            Console.WriteLine("content -> " + response);
         }
 
 
@@ -51,10 +51,10 @@ namespace TestDasrestApi
                 { "item","Hello"}
             };
 
-            IRestResponse response = Helper.GetResponse(Helper.Request(Method.POST, "/item/1", parameters));
-            string actual = response.Content;
-
-            Console.WriteLine("content -> " + actual);
+            string response = Helper.PostRequest("/item/1", parameters);
+            //string actual = response.Content;
+            Logger.WritingLogging($"Test Get All Items: content = {response}", null);
+            Console.WriteLine("content -> " + response);
         }
 
         //[Test]
@@ -95,9 +95,9 @@ namespace TestDasrestApi
                 {"password","qwerty" }
             };
 
-            IRestResponse response = Helper.GetResponse(Helper.Request(Method.POST, "/login", parameters));
+            //IRestResponse response = Helper.GetResponse(Helper.Request(Method.POST, "/login", parameters));
             //token = Helper.getToken(response.Content);
-            Assert.AreEqual(token.Length, 32);
+            //Assert.AreEqual(token.Length, 32);
         }
     }
 }
