@@ -18,15 +18,13 @@ namespace DasrestApi.Test
         public void BeforeAll()
         {
             Logger.InitializationLogging();
-            Logger.WritingLogging("Beginning of tests", null);
             token = Helper.getToken();
-            Assert.AreEqual(token.Length, 32);
+            Assert.AreEqual( 32, token.Length);
         }
 
         [OneTimeTearDown]
         public void AfterAll()
         {
-            Logger.WritingLogging("Ends of tests", null);
             Logger.Dispose();
         }
 
@@ -57,6 +55,19 @@ namespace DasrestApi.Test
             Console.WriteLine("content -> " + response);
         }
 
+        [Test]
+        public void ChangeItem()
+        {
+            var parameters = new Dictionary<string, string>()
+            {
+                {"token",token },
+                {"item","World"}
+            };
+
+            string response = Helper.PutRequest("/item/1", parameters);
+            Console.WriteLine("content ->"+ response);
+            Assert.AreEqual("True", response);
+        }
         //[Test]
         //public void ChangeItem()
         //{

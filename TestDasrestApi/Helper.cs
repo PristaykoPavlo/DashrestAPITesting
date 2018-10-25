@@ -20,15 +20,14 @@ namespace DasrestApi.Test
 
         public static string getToken()
         {
-            string token = "";
             var parameters = new Dictionary<string, string>
             {
                 { "name","admin" },
                 { "password","qwerty"}
             };
         
-            IRestResponse response = PostRequest("/login", parameters,false);
-            return TokenToString(response.Content);
+            string response = TokenRequest("/login", parameters);
+            return response;
         }
 
         protected static string TokenToString(string response)
@@ -45,7 +44,24 @@ namespace DasrestApi.Test
             }
             return token;
         }
-        
+        /// <summary>
+        /// Logging with parameters and return token
+        /// </summary>
+        /// <param name="route"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public static string TokenRequest(string route, Dictionary<string, string> parameters)
+        {
+            RestRequest request = new RestRequest(route, Method.POST);
+            foreach (var item in parameters)
+            {
+                request.AddParameter(item.Key, item.Value);
+            }
+            RestClient client = new RestClient(URL);
+            return TokenToString(client.Execute(request).Content);
+
+        }
+
         public static string GetRequest(string route,Dictionary<string,string> parameters)
         {
             RestRequest request = new RestRequest(route, Method.GET);
@@ -57,17 +73,7 @@ namespace DasrestApi.Test
             return ResponseToString(client.Execute(request).Content);
 
         }
-        public static IRestResponse PostRequest(string route, Dictionary<string, string> parameters,bool value)
-        {
-            RestRequest request = new RestRequest(route, Method.POST);
-            foreach (var item in parameters)
-            {
-                request.AddParameter(item.Key, item.Value);
-            }
-            RestClient client = new RestClient(URL);
-            return client.Execute(request);
 
-        }
 
         public static string PostRequest(string route, Dictionary<string, string> parameters)
         {
@@ -77,9 +83,23 @@ namespace DasrestApi.Test
                 request.AddParameter(item.Key, item.Value);
             }
             RestClient client = new RestClient(URL);
+           
+            //Logger.WritingLogging($"{System.Reflection.MethodBase.GetMethodFromHandle().Name}: content = ", null);
             return ResponseToString(client.Execute(request).Content);
-
         }
+
+        public static string PutRequest(string route, Dictionary<string, string> parameters)
+        {
+            RestRequest request = new RestRequest(route, Method.PUT);
+            foreach (var item in parameters)
+            {
+                request.AddParameter(item.Key, item.Value);
+            }
+            RestClient client = new RestClient(URL);
+           
+            return ResponseToString(client.Execute(request).Content);
+        }
+
         public static string ResponseToString(string body)
         {
             return JsonConvert.DeserializeObject<ServiceResponse>(body).content;
