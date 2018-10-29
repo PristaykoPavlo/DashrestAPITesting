@@ -11,25 +11,44 @@ namespace DasrestApi.Test
 {
     public class Helper
     {
-
+        #region Fields and Const
         const string URL = "http://localhost:8080/";
-        //const string Parametr1 = "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW";
-        //const string Parametr2 = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nadmin\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\nqwerty\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--";
-        
+        private static string token;
+        public static string addedItems;
 
+        public const string login = "/login";
+        public const string logout = "/logout";
+        public const string user = "/user";
+        public const string cooldowntime = "/cooldowntime";
+        public const string tokenlifetime = "/tokenlifetime";
+        public const string admins = "/admins";
+        public const string users = "/users";
+        public const string tockens = "/tockens";
+        public const string locked = "/locked";
+        public const string item = "/item";
+        public const string items = "/items";
+        public const string itemIndexes = "/itemindexes";
+        public const string adminLogin = "admin";
+        public const string adminPassword = "qwerty";
+        #endregion
 
+        #region Token Methods
         public static string getToken()
         {
             var parameters = new Dictionary<string, string>
             {
-                { "name","admin" },
-                { "password","qwerty"}
+                { "name",adminLogin },
+                { "password",adminPassword}
             };
         
             string response = TokenRequest("/login", parameters);
             return response;
         }
-
+        public static void AddToken(RestRequest request)
+        {
+            token = getToken();
+            request.AddParameter("token",token);
+        }
         protected static string TokenToString(string response)
         {
             string token="";
@@ -44,12 +63,7 @@ namespace DasrestApi.Test
             }
             return token;
         }
-        /// <summary>
-        /// Logging with parameters and return token
-        /// </summary>
-        /// <param name="route"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
+
         public static string TokenRequest(string route, Dictionary<string, string> parameters)
         {
             RestRequest request = new RestRequest(route, Method.POST);
@@ -61,51 +75,82 @@ namespace DasrestApi.Test
             return TokenToString(client.Execute(request).Content);
 
         }
+        #endregion
 
-        public static string GetRequest(string route,Dictionary<string,string> parameters)
+        #region GET,POST,PUT,DELETE-Requests
+
+        public static string GetRequest(string route)
         {
             RestRequest request = new RestRequest(route, Method.GET);
-            foreach (var item in parameters)
-            {
-                request.AddParameter(item.Key, item.Value);
-            }
+            AddToken(request);
             RestClient client = new RestClient(URL);
             return ResponseToString(client.Execute(request).Content);
 
         }
 
+        public static string GetRequest(string route, string index)
+        {
+            RestRequest request = new RestRequest(route + "/" + index, Method.GET);
+            AddToken(request);
+            RestClient client = new RestClient(URL);
+            return ResponseToString(client.Execute(request).Content);
+
+        }
+
+        public static string PostRequest(string route, string index, string item)
+        {
+            RestRequest request = new RestRequest(route + "/" + index, Method.POST);
+            AddToken(request);
+            request.AddParameter("item", item);
+            RestClient client = new RestClient(URL);
+
+            return ResponseToString(client.Execute(request).Content);
+        }
 
         public static string PostRequest(string route, Dictionary<string, string> parameters)
         {
             RestRequest request = new RestRequest(route, Method.POST);
+            AddToken(request);
             foreach (var item in parameters)
             {
                 request.AddParameter(item.Key, item.Value);
             }
             RestClient client = new RestClient(URL);
-           
-            //Logger.WritingLogging($"{System.Reflection.MethodBase.GetMethodFromHandle().Name}: content = ", null);
+
             return ResponseToString(client.Execute(request).Content);
         }
 
-        public static string PutRequest(string route, Dictionary<string, string> parameters)
+        public static string PutRequest(string route, string index, string item)
         {
-            RestRequest request = new RestRequest(route, Method.PUT);
-            foreach (var item in parameters)
-            {
-                request.AddParameter(item.Key, item.Value);
-            }
+            RestRequest request = new RestRequest(route+"/"+index, Method.PUT);
+            AddToken(request);
+            request.AddParameter("item", item);
             RestClient client = new RestClient(URL);
            
             return ResponseToString(client.Execute(request).Content);
+        }
+
+        public static string DeleteRequest(string route, string index)
+        {
+            RestRequest request = new RestRequest(route + "/" + index, Method.DELETE);
+            AddToken(request);
+            RestClient client = new RestClient(URL);
+
+            return ResponseToString(client.Execute(request).Content);
+        }
+        #endregion
+
+        #region String Methods
+        public static string AddTestItems(string index, string item)
+        {
+            return string.Format(index + " " + "\t" + item + "\n");
         }
 
         public static string ResponseToString(string body)
         {
             return JsonConvert.DeserializeObject<ServiceResponse>(body).content;
         }
-
-
+        #endregion
     }
     public struct ServiceResponse
     {

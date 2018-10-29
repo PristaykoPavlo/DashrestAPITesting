@@ -23,7 +23,7 @@ namespace DasrestApi.Test
         {
             if (streamWriter != null)
             {
-                WritingLogging("Ends of tests", null);
+                WritingLogging("**Ends of tests**", null);
                 streamWriter.Close();
             }
         }
@@ -48,7 +48,7 @@ namespace DasrestApi.Test
                     FileAccess.Write,
                     FileShare.Read);
             streamWriter = new StreamWriter(fileStream);
-            WritingLogging("Beginning of tests", null);
+            WritingLogging("*/Beginning of tests/*", null);
         }
 
         /// <summary>
